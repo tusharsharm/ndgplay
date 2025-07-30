@@ -1,5 +1,7 @@
-import { type Game, type InsertGame, type Player, type InsertPlayer, type ChatMessage, type InsertChatMessage, type Vote, type InsertVote } from "@shared/schema";
+import { type Game, type InsertGame, type Player, type InsertPlayer, type ChatMessage, type InsertChatMessage, type Vote, type InsertVote, games, players, chatMessages, votes } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Game operations
@@ -180,4 +182,115 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Storage implementation
+export class DatabaseStorage implements IStorage {
+  async getGame(id: string): Promise<Game | undefined> {
+    const [game] = await db.select().from(games).where(eq(games.id, id));
+    return game || undefined;
+  }
+
+  async getGameByRoomCode(roomCode: string): Promise<Game | undefined> {
+    const [game] = await db.select().from(games).where(eq(games.roomCode, roomCode));
+    return game || undefined;
+  }
+
+  async createGame(insertGame: InsertGame): Promise<Game> {
+    const [game] = await db
+      .insert(games)
+      .values(insertGame)
+      .returning();
+    return game;
+  }
+
+  async updateGame(id: string, updates: Partial<Game>): Promise<Game | undefined> {
+    const [game] = await db
+      .update(games)
+      .set(updates)
+      .where(eq(games.id, id))
+      .returning();
+    return game || undefined;
+  }
+
+  async deleteGame(id: string): Promise<boolean> {
+    const result = await db.delete(games).where(eq(games.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Player operations
+  async createPlayer(insertPlayer: InsertPlayer): Promise<Player> {
+    const [player] = await db
+      .insert(players)
+      .values(insertPlayer)
+      .returning();
+    return player;
+  }
+
+  async getPlayer(id: string): Promise<Player | undefined> {
+    const [player] = await db.select().from(players).where(eq(players.id, id));
+    return player || undefined;
+  }
+
+  async getPlayersByGameId(gameId: string): Promise<Player[]> {
+    return await db.select().from(players).where(eq(players.gameId, gameId));
+  }
+
+  async updatePlayer(id: string, updates: Partial<Player>): Promise<Player | undefined> {
+    const [player] = await db
+      .update(players)
+      .set(updates)
+      .where(eq(players.id, id))
+      .returning();
+    return player || undefined;
+  }
+
+  async deletePlayer(id: string): Promise<boolean> {
+    const result = await db.delete(players).where(eq(players.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async deletePlayersByGameId(gameId: string): Promise<boolean> {
+    const result = await db.delete(players).where(eq(players.gameId, gameId));
+    return (result.rowCount ?? 0) >= 0;
+  }
+
+  // Chat operations
+  async createChatMessage(insertMessage: InsertChatMessage): Promise<ChatMessage> {
+    const [message] = await db
+      .insert(chatMessages)
+      .values(insertMessage)
+      .returning();
+    return message;
+  }
+
+  async getChatMessagesByGameId(gameId: string): Promise<ChatMessage[]> {
+    return await db.select().from(chatMessages).where(eq(chatMessages.gameId, gameId));
+  }
+
+  async deleteChatMessagesByGameId(gameId: string): Promise<boolean> {
+    const result = await db.delete(chatMessages).where(eq(chatMessages.gameId, gameId));
+    return (result.rowCount ?? 0) >= 0;
+  }
+
+  // Vote operations
+  async createVote(insertVote: InsertVote): Promise<Vote> {
+    const [vote] = await db
+      .insert(votes)
+      .values(insertVote)
+      .returning();
+    return vote;
+  }
+
+  async getVotesByGameId(gameId: string): Promise<Vote[]> {
+    return await db.select().from(votes).where(eq(votes.gameId, gameId));
+  }
+
+  async deleteVotesByGameId(gameId: string): Promise<boolean> {
+    const result = await db.delete(votes).where(eq(votes.gameId, gameId));
+    return (result.rowCount ?? 0) >= 0;
+  }
+}
+
+// Use database storage in production, memory storage in development
+export const storage = process.env.NODE_ENV === 'production' 
+  ? new DatabaseStorage() 
+  : new MemStorage();
