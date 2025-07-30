@@ -92,44 +92,40 @@ The application follows a client-server architecture with real-time communicatio
 
 ## Deployment Strategy
 
-The application is now configured for deployment on multiple platforms with separate frontend and backend deployment options:
+The application is configured for production deployment using Vercel (frontend), Render (backend), and Neon (database):
 
-### Development
-- **Local Development**: Vite dev server with Express backend integration on port 5000
+### Development Environment
+- **Local Development**: Unified development server on port 5000 with Vite integration
 - **Hot Reload**: Vite HMR for frontend, tsx watch mode for backend
-- **Database**: In-memory storage for development, ready for PostgreSQL integration
+- **Storage**: In-memory storage for development, database storage for production
+- **Database**: Neon PostgreSQL connection for persistent data
 
-### Production Deployment Options
-
-#### Option 1: Separated Deployment (Recommended)
-- **Frontend (Vercel)**: 
-  - Static site deployment with Vite build
-  - Environment variable `VITE_BACKEND_URL` points to backend server
-  - Optimized for CDN distribution and fast loading
-- **Backend (Render)**: 
-  - Node.js web service with WebSocket support
-  - Health check endpoint at `/health`
-  - Environment variables for production configuration
-
-#### Option 2: All-in-One Deployment (Render)
-- **Full Stack**: Single web service hosting both frontend and backend
-- **WebSocket Support**: Real-time communication for multiplayer features
-- **Static Assets**: Frontend served from backend Express server
+### Production Architecture
+- **Frontend Hosting**: Vercel for optimized React application deployment
+- **Backend Hosting**: Render for Express.js server with WebSocket support
+- **Database**: Neon PostgreSQL for game state, players, votes, and chat persistence
+- **Real-time Communication**: WebSocket connections between Vercel frontend and Render backend
 
 ### Environment Configuration
 - **Frontend Environment Variables**:
-  - `VITE_BACKEND_URL`: Backend server URL for WebSocket connections
+  - `VITE_API_URL`: Backend API endpoint for HTTP requests
+  - `VITE_WS_URL`: Backend WebSocket endpoint for real-time features
 - **Backend Environment Variables**:
-  - `NODE_ENV`: Set to 'production' for production builds
-  - `PORT`: Server port (auto-configured by hosting platforms)
-  - `DATABASE_URL`: PostgreSQL connection string (when database is integrated)
+  - `DATABASE_URL`: Neon PostgreSQL connection string
+  - `NODE_ENV`: Production environment flag
+  - `PORT`: Server port (10000 for Render)
 
-### Build Configuration
-- **Frontend Build**: `cd client && npm run build` (outputs to `client/dist`)
-- **Backend Build**: `cd server && npm run build` (outputs to `server/dist`)
-- **Deployment Files**:
-  - `vercel.json`: Vercel deployment configuration for frontend
-  - `render.yaml`: Render deployment configuration for full-stack or backend-only
-  - Separate `package.json` files for modular dependency management
+### Deployment Files Created
+- **DEPLOYMENT.md**: Complete step-by-step deployment guide
+- **deployment-scripts.md**: Quick setup scripts and troubleshooting
+- **frontend-package.json**: Frontend-only dependencies for Vercel
+- **backend-package.json**: Backend-only dependencies for Render
+- **frontend-vite.config.ts**: Optimized Vite configuration for separate deployment
 
-The application architecture supports both monolithic and microservices deployment patterns, making it suitable for various hosting platforms including Vercel, Render, Netlify, Railway, and others that support Node.js and static site hosting.
+### Database Integration
+- **Development**: Memory storage with database interface
+- **Production**: Full PostgreSQL integration with Drizzle ORM
+- **Schema Management**: Automatic schema synchronization via `npm run db:push`
+- **Real-time Data**: Game sessions, player states, votes, and chat messages persisted
+
+The architecture supports scalable multiplayer gaming with persistent data storage and real-time synchronization optimized for cross-platform deployment.
