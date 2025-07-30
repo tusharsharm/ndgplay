@@ -92,20 +92,44 @@ The application follows a client-server architecture with real-time communicatio
 
 ## Deployment Strategy
 
-### Development
-- **Local Development**: Vite dev server with Express backend integration
-- **Hot Reload**: Vite HMR for frontend, tsx watch mode for backend
-- **Database**: Neon PostgreSQL connection via environment variables
+The application is now configured for deployment on multiple platforms with separate frontend and backend deployment options:
 
-### Production Build
-- **Frontend**: Vite production build generating static assets
-- **Backend**: ESBuild bundling Node.js application to single file
-- **Assets**: Static file serving from Express in production
-- **Database**: Production PostgreSQL instance via DATABASE_URL environment variable
+### Development
+- **Local Development**: Vite dev server with Express backend integration on port 5000
+- **Hot Reload**: Vite HMR for frontend, tsx watch mode for backend
+- **Database**: In-memory storage for development, ready for PostgreSQL integration
+
+### Production Deployment Options
+
+#### Option 1: Separated Deployment (Recommended)
+- **Frontend (Vercel)**: 
+  - Static site deployment with Vite build
+  - Environment variable `VITE_BACKEND_URL` points to backend server
+  - Optimized for CDN distribution and fast loading
+- **Backend (Render)**: 
+  - Node.js web service with WebSocket support
+  - Health check endpoint at `/health`
+  - Environment variables for production configuration
+
+#### Option 2: All-in-One Deployment (Render)
+- **Full Stack**: Single web service hosting both frontend and backend
+- **WebSocket Support**: Real-time communication for multiplayer features
+- **Static Assets**: Frontend served from backend Express server
 
 ### Environment Configuration
-- **Database URL**: Required environment variable for PostgreSQL connection
-- **Build Scripts**: Separate development and production build processes
-- **Static Assets**: Vite builds to dist/public, served by Express in production
+- **Frontend Environment Variables**:
+  - `VITE_BACKEND_URL`: Backend server URL for WebSocket connections
+- **Backend Environment Variables**:
+  - `NODE_ENV`: Set to 'production' for production builds
+  - `PORT`: Server port (auto-configured by hosting platforms)
+  - `DATABASE_URL`: PostgreSQL connection string (when database is integrated)
 
-The application is designed to be deployed on platforms supporting Node.js with WebSocket capabilities and PostgreSQL databases, with particular optimization for Replit's environment including development tooling integration.
+### Build Configuration
+- **Frontend Build**: `cd client && npm run build` (outputs to `client/dist`)
+- **Backend Build**: `cd server && npm run build` (outputs to `server/dist`)
+- **Deployment Files**:
+  - `vercel.json`: Vercel deployment configuration for frontend
+  - `render.yaml`: Render deployment configuration for full-stack or backend-only
+  - Separate `package.json` files for modular dependency management
+
+The application architecture supports both monolithic and microservices deployment patterns, making it suitable for various hosting platforms including Vercel, Render, Netlify, Railway, and others that support Node.js and static site hosting.
