@@ -8,7 +8,9 @@ export function useWebSocket() {
 
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    // For production, use environment variable for backend URL
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || window.location.host;
+    const wsUrl = `${protocol}//${backendUrl}/ws`;
     
     const socket = new WebSocket(wsUrl);
     socketRef.current = socket;
