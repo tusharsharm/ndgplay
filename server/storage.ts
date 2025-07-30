@@ -45,8 +45,11 @@ export class MemStorage implements IStorage {
   async createGame(insertGame: InsertGame): Promise<Game> {
     const id = randomUUID();
     const game: Game = {
-      ...insertGame,
       id,
+      roomCode: insertGame.roomCode,
+      hostId: insertGame.hostId,
+      state: insertGame.state || "lobby",
+      settings: insertGame.settings,
       createdAt: new Date(),
     };
     this.games.set(id, game);
@@ -78,8 +81,18 @@ export class MemStorage implements IStorage {
   async createPlayer(insertPlayer: InsertPlayer): Promise<Player> {
     const id = randomUUID();
     const player: Player = {
-      ...insertPlayer,
       id,
+      gameId: insertPlayer.gameId,
+      username: insertPlayer.username,
+      color: insertPlayer.color,
+      role: insertPlayer.role || "crewmate",
+      isAlive: insertPlayer.isAlive ?? true,
+      isHost: insertPlayer.isHost ?? false,
+      position: insertPlayer.position,
+      tasksCompleted: insertPlayer.tasksCompleted ?? 0,
+      totalTasks: insertPlayer.totalTasks ?? 7,
+      hasVoted: insertPlayer.hasVoted ?? false,
+      votedFor: insertPlayer.votedFor ?? null,
     };
     this.players.set(id, player);
     return player;
@@ -144,8 +157,10 @@ export class MemStorage implements IStorage {
   async createVote(insertVote: InsertVote): Promise<Vote> {
     const id = randomUUID();
     const vote: Vote = {
-      ...insertVote,
       id,
+      gameId: insertVote.gameId,
+      voterId: insertVote.voterId,
+      targetId: insertVote.targetId ?? null,
       timestamp: new Date(),
     };
     this.votes.set(id, vote);

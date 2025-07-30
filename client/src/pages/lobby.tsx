@@ -145,7 +145,7 @@ export default function Lobby() {
                       <div className={`w-8 h-8 ${colorClasses[player.color]} rounded-full border-2 border-gray-600`} />
                       <span className="font-medium text-sm">{player.username}</span>
                       {player.isHost && (
-                        <Crown className="h-4 w-4 text-game-yellow ml-auto" title="Host" />
+                        <Crown className="h-4 w-4 text-game-yellow ml-auto" />
                       )}
                     </div>
                   ))}
@@ -225,7 +225,7 @@ export default function Lobby() {
                   <Checkbox
                     id="anonymousVotes"
                     checked={anonymousVotes}
-                    onCheckedChange={setAnonymousVotes}
+                    onCheckedChange={(checked) => setAnonymousVotes(checked === true)}
                     disabled={!isHost}
                     data-testid="checkbox-anonymous-votes"
                   />
