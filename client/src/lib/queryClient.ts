@@ -7,12 +7,24 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+function getApiBaseUrl(): string {
+  // Production environment - use environment variable for backend URL
+  if (import.meta.env.PROD) {
+    return import.meta.env.VITE_API_URL || 'https://your-backend-name.onrender.com'
+  }
+  // Development environment - use empty string (proxy to same host)
+  return ''
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  const baseUrl = getApiBaseUrl()
+  const fullUrl = `${baseUrl}${url}`
+  
+  const res = await fetch(fullUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -29,7 +41,11 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const baseUrl = getApiBaseUrl()
+    const url = queryKey.join("/") as string
+    const fullUrl = `${baseUrl}${url}`
+    
+    const res = await fetch(fullUrl, {
       credentials: "include",
     });
 

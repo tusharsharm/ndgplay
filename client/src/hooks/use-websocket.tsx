@@ -7,10 +7,18 @@ export function useWebSocket() {
   const [lastMessage, setLastMessage] = useState<GameStateUpdate | null>(null);
 
   useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    // For production, use environment variable for backend URL
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || window.location.host;
-    const wsUrl = `${protocol}//${backendUrl}/ws`;
+    const getWebSocketUrl = () => {
+      // Production environment - use environment variable
+      if (import.meta.env.PROD) {
+        return import.meta.env.VITE_WS_URL || 'wss://your-backend-name.onrender.com/ws'
+      }
+      
+      // Development environment - connect to local server
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+      return `${protocol}//${window.location.host}/ws`
+    }
+    
+    const wsUrl = getWebSocketUrl();
     
     const socket = new WebSocket(wsUrl);
     socketRef.current = socket;
