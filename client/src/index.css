@@ -23,6 +23,14 @@
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
+  
+  /* Game-specific colors */
+  --game-blue: hsl(207, 90%, 54%);
+  --game-red: hsl(0, 84.2%, 60.2%);
+  --game-green: hsl(142, 76%, 36%);
+  --game-yellow: hsl(45, 93%, 47%);
+  --game-gray: hsl(215, 16%, 47%);
+  --game-surface: hsl(215, 25%, 16%);
 }
 
 .dark {
@@ -56,4 +64,54 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
+}
+
+@layer components {
+  .game-blue {
+    @apply text-blue-500;
+  }
+  
+  .game-red {
+    @apply text-red-500;
+  }
+  
+  .game-green {
+    @apply text-green-500;
+  }
+  
+  .game-yellow {
+    @apply text-yellow-500;
+  }
+  
+  .game-surface {
+    background-color: var(--game-surface);
+  }
+}
+
+/* Canvas cursor styles */
+canvas {
+  cursor: crosshair;
+}
+
+canvas:active {
+  cursor: grabbing;
+}
+
+/* Custom scrollbar for chat */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: hsl(240, 3.7%, 15.9%);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: hsl(240, 5%, 64.9%);
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: hsl(240, 5%, 74.9%);
 }
